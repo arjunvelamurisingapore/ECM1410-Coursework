@@ -15,27 +15,74 @@ import java.time.LocalTime;
  */
 public class BadCyclingPortalImpl implements CyclingPortal {
 
+	private Race[] races;
+
 	@Override
 	public int[] getRaceIds() {
 		// TODO Auto-generated method stub
-		return new int[] {};
+		int[] race_id_array = new int[0];
+		int i = 0;
+		while (races[i] != null) {
+			int RaceID = races[i].race_id;
+			race_id_array[i] = RaceID;
+			i+=1;
+		}
+		return race_id_array;
 	}
+
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
-		return 0;
+		if (name == null || name.isEmpty()) {
+			throw new InvalidNameException("Race name cannot be null or empty");
+		}
+		if (!name.matches("[a-zA-Z ]+")) {
+			throw new IllegalNameException("Race name can only contain letters and spaces.");
+		}
+		 Race race = new Race(name,description);
+		 return 0;
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		String details = " ";
+		int[] race_array = getRaceIds();
+		int i=0;
+		while (found == false){
+			if (race_array[i] == raceId){
+				String name = races[i].race_name;
+				String description = races[i].description;
+				found = true;
+				details = name + ' ' + description;
+			} else {
+				i++;
+			}
+		}
+		if (found == false){
+				throw new IDNotRecognisedException();
+			}
+		return details;
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		boolean found = false;
+		int[] race_array = getRaceIds();
+		int i = 0;
+		while (found == false) {
+			if (race_array[i] == raceId) {
+				race_array[i] = 0;
+			} else {
+				i++;
+			}
+		}
+		if (found == false){
+			throw new IDNotRecognisedException();
+		}
 
 	}
 

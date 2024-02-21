@@ -1,4 +1,3 @@
-import cycling.BadMiniCyclingPortalImpl;
 import cycling.IllegalNameException;
 import cycling.InvalidNameException;
 import cycling.MiniCyclingPortal;
@@ -24,8 +23,8 @@ public class CyclingPortalTestApp {
 		System.out.println("The system compiled and started the execution...");
 
 		// TODO replace BadMiniCyclingPortalImpl by CyclingPortalImpl
-		MiniCyclingPortal portal1 = new BadMiniCyclingPortalImpl();
-		MiniCyclingPortal portal2 = new BadMiniCyclingPortalImpl();
+		CyclingPortal portal1 = new BadCyclingPortalImpl();
+		CyclingPortal portal2 = new BadCyclingPortalImpl();
 
 		assert (portal1.getRaceIds().length == 0)
 				: "Innitial Portal not empty as required or not returning an empty array.";
