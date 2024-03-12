@@ -3,6 +3,9 @@ package cycling;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+
+import cycling.Stage;
 
 
 /**
@@ -15,15 +18,15 @@ import java.time.LocalTime;
  */
 public class BadCyclingPortalImpl implements CyclingPortal {
 
-	private Race[] races;
+	//private Race[] races;
 
 	@Override
 	public int[] getRaceIds() {
 		// TODO Auto-generated method stub
 		int[] race_id_array = new int[0];
 		int i = 0;
-		while (races[i] != null) {
-			int RaceID = races[i].race_id;
+		while (Race.races[i] != null) {
+			int RaceID = Race.races[i].race_id;
 			race_id_array[i] = RaceID;
 			i+=1;
 		}
@@ -53,8 +56,8 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		int i=0;
 		while (found == false){
 			if (race_array[i] == raceId){
-				String name = races[i].race_name;
-				String description = races[i].description;
+				String name = Race.races[i].race_name;
+				String description = Race.races[i].description;
 				found = true;
 				details = name + ' ' + description;
 			} else {
@@ -88,8 +91,23 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+		int stage_count;
+		boolean found = false;
+		int i = 0;
+		Race curr = Race.races[0];
+		while (found = false){
+			curr = Race.races[i];
+			if (curr.race_id == raceId){
+				found = true;
+			}else{
+				i+=1;
+			}
+		}
+		if (found == false){
+			throw new IDNotRecognisedException();
+		}
+		stage_count = (curr.getStages()).size();
+		return stage_count;
 	}
 
 	@Override
@@ -102,19 +120,74 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		boolean found = false;
+		int i = 0;
+		Race curr = Race.races[0];
+		int num_stages = getNumberOfStages(raceId);
+		int[] stageIds = new int[num_stages];
+		while (!found) {
+			curr = Race.races[i];
+			if (curr.race_id == raceId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+		if (!found){
+			throw new IDNotRecognisedException();
+		}
 
+		ArrayList<Stage>stage_list = new ArrayList<>();
+		stage_list = curr.getStages();
+
+		for (int j = 0; j <= num_stages; j++){
+			Stage temp = stage_list.get(j);
+			int temp_id = temp.getStageId();
+			stageIds[j] = temp_id;
+		}
+		}
+		return stageIds;
+	}
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+		boolean found = false;
+		int i = 0;
+		double stageLength;
+		Stage curr = Stage.stages[0];
+		while (!found) {
+			curr = Stage.stages[i];
+			if (curr.stageId == stageId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		stageLength = curr.getStage_length();
+		return stageLength;
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
+		boolean found = false;
+		int i = 0;
+		int remove_id = 0;
+		double stageLength;
+		Stage curr = Stage.stages[0];
+		while (!found) {
+			curr = Stage.stages[i];
+			if (curr.stageId == stageId) {
+				found = true;
+				remove_id = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+			Stage.stages[remove_id] = null;
+		}
 
 	}
 
