@@ -31,4 +31,22 @@ public class Race {
     public void setStages(ArrayList<Stage> stages) {
         this.stages = stages;
     }
+
+    public static Race getRace(int raceID) throws IDNotRecognisedException {
+        boolean found = false;
+        int i = 0;
+        Race curr = races[i];
+        while (!found) {
+            curr = races[i];
+            if (curr.race_id == raceID) {
+                found = true;
+            } else {
+                i += 1;
+            }
+            if (!found) {
+                throw new IDNotRecognisedException();
+            }
+        }
+        return curr;
+    }
 }

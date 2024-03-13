@@ -5,9 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-import cycling.Stage;
-
-
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortal interface.
@@ -53,8 +50,8 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		boolean found = false;
 		String details = " ";
 		int[] race_array = getRaceIds();
-		int i=0;
-		while (found == false){
+		int i = 0;
+		while (!found){
 			if (race_array[i] == raceId){
 				String name = Race.races[i].race_name;
 				String description = Race.races[i].description;
@@ -64,7 +61,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 				i++;
 			}
 		}
-		if (found == false){
+		if (!found){
 				throw new IDNotRecognisedException();
 			}
 		return details;
@@ -76,14 +73,14 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		boolean found = false;
 		int[] race_array = getRaceIds();
 		int i = 0;
-		while (found == false) {
+		while (!found) {
 			if (race_array[i] == raceId) {
 				race_array[i] = 0;
 			} else {
 				i++;
 			}
 		}
-		if (found == false){
+		if (!found){
 			throw new IDNotRecognisedException();
 		}
 
@@ -92,20 +89,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		int stage_count;
-		boolean found = false;
-		int i = 0;
-		Race curr = Race.races[0];
-		while (found = false){
-			curr = Race.races[i];
-			if (curr.race_id == raceId){
-				found = true;
-			}else{
-				i+=1;
-			}
-		}
-		if (found == false){
-			throw new IDNotRecognisedException();
-		}
+		Race curr = Race.getRace(raceId);
 		stage_count = (curr.getStages()).size();
 		return stage_count;
 	}
@@ -120,30 +104,18 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		boolean found = false;
-		int i = 0;
-		Race curr = Race.races[0];
+
+		Race curr = Race.getRace(raceId);
 		int num_stages = getNumberOfStages(raceId);
 		int[] stageIds = new int[num_stages];
-		while (!found) {
-			curr = Race.races[i];
-			if (curr.race_id == raceId) {
-				found = true;
-			} else {
-				i += 1;
-			}
-		if (!found){
-			throw new IDNotRecognisedException();
-		}
 
 		ArrayList<Stage>stage_list = new ArrayList<>();
 		stage_list = curr.getStages();
 
-		for (int j = 0; j <= num_stages; j++){
+		for (int j = 0; j <= num_stages; j++) {
 			Stage temp = stage_list.get(j);
 			int temp_id = temp.getStageId();
 			stageIds[j] = temp_id;
-		}
 		}
 		return stageIds;
 	}
