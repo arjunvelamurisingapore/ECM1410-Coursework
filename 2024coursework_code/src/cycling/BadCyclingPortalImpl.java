@@ -185,8 +185,23 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+		boolean found = false;
+		int i = 0;
+		int remove_id = 0;
+		Checkpoint curr = Checkpoint.checkpoints[0];
+		while (!found) {
+			curr = Checkpoint.checkpoints[i];
+			if (curr.checkpoint_id == checkpointId) {
+				found = true;
+				remove_id = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Checkpoint.checkpoints[remove_id] = null;
 	}
 
 	@Override
@@ -197,13 +212,33 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		int count = ((Stage.stages[stageId]).checkpoints).size();
+		int[] stage_checkpoints = new int[count];
+		boolean found = false;
+		int i = 0;
+		Stage curr = Stage.stages[0];
+		while (!found) {
+			curr = Stage.stages[i];
+			if (curr.stageId == stageId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		for (int j = 0; j<count; j++){
+			Stage temp = Stage.stages[stageId];
+			Checkpoint element = temp.checkpoints.get(j);
+			stage_checkpoints[j] = element.getCheckpoint_id();
+		}
+		return stage_checkpoints;
 	}
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
+		if ()
 		return 0;
 	}
 
