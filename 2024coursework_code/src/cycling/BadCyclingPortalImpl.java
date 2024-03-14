@@ -99,6 +99,11 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
+		Race race = Race.getRace(raceId);
+		if (race != null) {
+			Stage stage = new Stage(type, stageName, description, length, startTime);
+			Race.stages.add
+		}
 		return 0;
 	}
 
