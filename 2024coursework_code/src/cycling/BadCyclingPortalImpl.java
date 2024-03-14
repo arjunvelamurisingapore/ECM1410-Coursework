@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -238,14 +239,40 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		if ()
-		return 0;
+		int count = ((Teams.teams).length);
+		Teams[] existing_teams = new Teams[count];
+		String regex = "^[a-zA-Z]+$";
+		Pattern pattern = Pattern.compile(regex);
+		if (name == null ||!(pattern.matcher(name).matches())){
+			throw new InvalidNameException();
+		}
+		for (int i=0; i< getTeams().length;i++){
+			if (((existing_teams[i]).getTeam_name()).equals(name)){
+				throw new IllegalNameException();
+			}
+		}
+		Teams newTeam = new Teams(name,description);
+		int newID = newTeam.team_id;
+		return newID;
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		boolean found = false;
+		int i = 0;
+		Teams curr = Teams.teams[0];
+		while (!found) {
+			curr = Teams.teams[i];
+			if (curr.team_id == teamId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Teams.teams[i] = null;
 	}
 
 	@Override

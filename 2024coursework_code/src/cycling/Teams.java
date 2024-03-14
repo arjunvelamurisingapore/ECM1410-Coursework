@@ -16,10 +16,14 @@ public class Teams {
         team_riders = new ArrayList<Riders>();
     }
 
+    public Teams(String name, String description){
+        this.team_name = name;
+        this.team_description = description;
+        team_riders = new ArrayList<Riders>();
+    }
 
 
-
-
-
-
+    public String getTeam_name() {
+        return team_name;
+    }
 }
