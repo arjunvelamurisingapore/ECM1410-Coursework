@@ -136,7 +136,6 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		Stage removestage = Stage.getStage(stageId);
-		int i;
 		if (removestage != null) {
 			for (int i = 0; i < Stage.stages.length; i++) {
 				if (Stage.stages[i] == removestage) {
