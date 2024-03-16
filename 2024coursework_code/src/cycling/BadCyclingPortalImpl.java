@@ -103,7 +103,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		Race race = Race.getRace(raceId);
 		if (race != null) {
 			Stage stage = new Stage(type, stageName, description, length, startTime);
-			Race.stages.add
+			race.stages.add(stage);
 		}
 		return 0;
 	}
@@ -127,46 +127,26 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	}
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		boolean found = false;
-		int i = 0;
 		double stageLength;
-		Stage curr = Stage.stages[0];
-		while (!found) {
-			curr = Stage.stages[i];
-			if (curr.stageId == stageId) {
-				found = true;
-			} else {
-				i += 1;
-			}
-			if (!found) {
-				throw new IDNotRecognisedException();
-			}
-		}
+		Stage curr = Stage.getStage(stageId);
 		stageLength = curr.getStage_length();
 		return stageLength;
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		boolean found = false;
-		int i = 0;
-		int remove_id = 0;
-		double stageLength;
-		Stage curr = Stage.stages[0];
-		while (!found) {
-			curr = Stage.stages[i];
-			if (curr.stageId == stageId) {
-				found = true;
-				remove_id = i;
-			} else {
-				i += 1;
+		Stage removestage = Stage.getStage(stageId);
+		int i;
+		if (removestage != null) {
+			for (int i = 0; i < Stage.stages.length; i++) {
+				if (Stage.stages[i] == removestage) {
+					Stage.stages[i] = null;
+					break;
+				}
 			}
-			if (!found) {
-				throw new IDNotRecognisedException();
-			}
-			Stage.stages[remove_id] = null;
+		} else {
+			throw new IDNotRecognisedException();
 		}
-
 	}
 
 	@Override
