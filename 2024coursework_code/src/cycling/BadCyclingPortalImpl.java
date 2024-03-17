@@ -35,6 +35,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
+		int id;
 		if (name == null || name.isEmpty()) {
 			throw new InvalidNameException("Race name cannot be null or empty");
 		}
@@ -42,7 +43,8 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			throw new IllegalNameException("Race name can only contain letters and spaces.");
 		}
 		 Race race = new Race(name,description);
-		 return 0;
+		id = race.getRace_id();
+		return id;
 	}
 
 	@Override
@@ -100,9 +102,10 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
+		Stage stage;
 		Race race = Race.getRace(raceId);
 		if (race != null) {
-			Stage stage = new Stage(type, stageName, description, length, startTime);
+			stage = new Stage(type, stageName, description, length, startTime);
 			race.stages.add(stage);
 		}
 		return 0;
@@ -256,27 +259,81 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
-		return null;
+		int counter = Teams.teams.length;
+		int[] team_ids = new int[counter];
+		for (int i =0; i<counter;i++){
+			Teams curr = Teams.teams[i];
+			team_ids[i] = curr.team_id;
+		}
+		return team_ids;
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		Teams curr = Teams.teams[0];
+		while (!found) {
+			curr = Teams.teams[i];
+			if (curr.team_id == teamId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int riders = curr.getTeam_riders().size();
+		int[] team_riders = new int[riders];
+		for (int j =0; j<riders; j++){
+			team_riders[j] = curr.getTeam_riders().get(j).getId();
+		}
+
+		return team_riders;
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return 0;
+		boolean found = false;
+		int i = 0;
+		Teams curr = Teams.teams[0];
+		while (!found) {
+			curr = Teams.teams[i];
+			if (curr.team_id == teamID) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Riders rider = new Riders(teamID,name,yearOfBirth);
+		curr.team_riders.add(rider);
+		int id = rider.getId();
+
+		return id;
 	}
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		boolean found = false;
+		int i = 0;
+		Riders curr = Riders.riders[0];
+		while (!found) {
+			curr = Riders.riders[i];
+			if (curr.id == riderId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Riders.riders[i] = null;
 	}
 
 	@Override
