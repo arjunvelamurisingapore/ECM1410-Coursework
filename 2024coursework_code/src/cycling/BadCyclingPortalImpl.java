@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.time.temporal.ChronoUnit;
+
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -347,7 +350,50 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		LocalTime start;
+		LocalTime finish;
+		boolean found = false;
+		Riders current_rider = Riders.riders[0];
+		Stage current_stage = Stage.stages[0];
+		int i = 0;
+		int rider_counter =0;
+		while (!found) {
+			current_rider = Riders.riders[i];
+			if (current_rider.id == riderId) {
+				found = true;
+				rider_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		i = 0;
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		LocalTime duration;
+		int checkpoint_count = current_stage.getCheckpoints().size();
+		LocalTime[] times = new LocalTime[checkpoint_count];
+		for (int j =0; j<checkpoint_count; j++){
+			Checkpoint curr = Checkpoint.checkpoints[j];
+			start = curr.riders[rider_counter].start_time;
+			finish = curr.riders[rider_counter].finish_time;
+			long durationInSeconds = ChronoUnit.SECONDS.between(start, finish);
+			duration = LocalTime.ofSecondOfDay(durationInSeconds);
+			times[j] = duration;
+		}
+		LocalTime totalelapsedtime = Arrays.stream(times).reduce(LocalTime.MIDNIGHT, (t1, t2) -> t1.plusHours(t2.getHour()).plusMinutes(t2.getMinute()).plusSeconds(t2.getSecond()));
+		return times;
 	}
 
 	@Override

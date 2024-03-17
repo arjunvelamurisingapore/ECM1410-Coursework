@@ -14,6 +14,9 @@ public class Stage {
     public LocalDateTime startTime;
 
     public double stage_length;
+
+    public Riders[] riders;
+
     public ArrayList<Checkpoint> checkpoints = new ArrayList<>();
 
     public Stage(int Stage_ID, StageType Stage_Type, String stageName,  String description, double stage_length, LocalDateTime startTime){
@@ -70,6 +73,10 @@ public class Stage {
 
     public void setStage_length(double stage_length) {
         this.stage_length = stage_length;
+    }
+
+    public ArrayList<Checkpoint> getCheckpoints() {
+        return checkpoints;
     }
 }
 

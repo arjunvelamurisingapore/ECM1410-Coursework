@@ -1,5 +1,7 @@
 package cycling;
 
+import java.time.LocalTime;
+
 public class Riders {
     public String name;
     public int team_id;
@@ -8,6 +10,11 @@ public class Riders {
     public int yearofbirth;
 
     public static Riders[]riders;
+
+    public LocalTime start_time;
+    public LocalTime finish_time;
+
+
 
     public Riders(int team_id,String name,int birth){
         this.team_id=team_id;
