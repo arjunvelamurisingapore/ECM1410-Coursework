@@ -26,4 +26,8 @@ public class Teams {
     public String getTeam_name() {
         return team_name;
     }
+
+    public ArrayList<Riders> getTeam_riders() {
+        return team_riders;
+    }
 }

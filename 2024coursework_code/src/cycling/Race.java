@@ -32,6 +32,10 @@ public class Race {
         this.stages = stages;
     }
 
+    public int getRace_id() {
+        return race_id;
+    }
+
     public static Race getRace(int raceID) throws IDNotRecognisedException {
         boolean found = false;
         int i = 0;

@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Pattern;
+import java.time.temporal.ChronoUnit;
+
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -34,6 +38,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
+		int id;
 		if (name == null || name.isEmpty()) {
 			throw new InvalidNameException("Race name cannot be null or empty");
 		}
@@ -41,7 +46,8 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			throw new IllegalNameException("Race name can only contain letters and spaces.");
 		}
 		 Race race = new Race(name,description);
-		 return 0;
+		id = race.getRace_id();
+		return id;
 	}
 
 	@Override
@@ -99,9 +105,10 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
+		Stage stage;
 		Race race = Race.getRace(raceId);
 		if (race != null) {
-			Stage stage = new Stage(type, stageName, description, length, startTime);
+			stage = new Stage(type, stageName, description, length, startTime);
 			race.stages.add(stage);
 		}
 		return 0;
@@ -121,7 +128,6 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			Stage temp = stage_list.get(j);
 			int temp_id = temp.getStageId();
 			stageIds[j] = temp_id;
-
 		}
 		return stageIds;
 	}
@@ -136,7 +142,6 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		Stage removestage = Stage.getStage(stageId);
-		int i;
 		if (removestage != null) {
 			for (int i = 0; i < Stage.stages.length; i++) {
 				if (Stage.stages[i] == removestage) {
@@ -148,12 +153,12 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException();
 		}
 	}
+
 	@Override
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
 		// TODO Auto-generated method stub
-
 		return 0;
 	}
 
@@ -219,38 +224,119 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		return 0;
+		int count = ((Teams.teams).length);
+		Teams[] existing_teams = new Teams[count];
+		String regex = "^[a-zA-Z]+$";
+		Pattern pattern = Pattern.compile(regex);
+		if (name == null ||!(pattern.matcher(name).matches())){
+			throw new InvalidNameException();
+		}
+		for (int i=0; i< getTeams().length;i++){
+			if (((existing_teams[i]).getTeam_name()).equals(name)){
+				throw new IllegalNameException();
+			}
+		}
+		Teams newTeam = new Teams(name,description);
+		int newID = newTeam.team_id;
+		return newID;
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		boolean found = false;
+		int i = 0;
+		Teams curr = Teams.teams[0];
+		while (!found) {
+			curr = Teams.teams[i];
+			if (curr.team_id == teamId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Teams.teams[i] = null;
 	}
 
 	@Override
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
-		return null;
+		int counter = Teams.teams.length;
+		int[] team_ids = new int[counter];
+		for (int i =0; i<counter;i++){
+			Teams curr = Teams.teams[i];
+			team_ids[i] = curr.team_id;
+		}
+		return team_ids;
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		Teams curr = Teams.teams[0];
+		while (!found) {
+			curr = Teams.teams[i];
+			if (curr.team_id == teamId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int riders = curr.getTeam_riders().size();
+		int[] team_riders = new int[riders];
+		for (int j =0; j<riders; j++){
+			team_riders[j] = curr.getTeam_riders().get(j).getId();
+		}
+
+		return team_riders;
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return 0;
+		boolean found = false;
+		int i = 0;
+		Teams curr = Teams.teams[0];
+		while (!found) {
+			curr = Teams.teams[i];
+			if (curr.team_id == teamID) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Riders rider = new Riders(teamID,name,yearOfBirth);
+		curr.team_riders.add(rider);
+		int id = rider.getId();
+
+		return id;
 	}
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		boolean found = false;
+		int i = 0;
+		Riders curr = Riders.riders[0];
+		while (!found) {
+			curr = Riders.riders[i];
+			if (curr.id == riderId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Riders.riders[i] = null;
 	}
 
 	@Override
@@ -264,7 +350,50 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		LocalTime start;
+		LocalTime finish;
+		boolean found = false;
+		Riders current_rider = Riders.riders[0];
+		Stage current_stage = Stage.stages[0];
+		int i = 0;
+		int rider_counter =0;
+		while (!found) {
+			current_rider = Riders.riders[i];
+			if (current_rider.id == riderId) {
+				found = true;
+				rider_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		i = 0;
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		LocalTime duration;
+		int checkpoint_count = current_stage.getCheckpoints().size();
+		LocalTime[] times = new LocalTime[checkpoint_count];
+		for (int j =0; j<checkpoint_count; j++){
+			Checkpoint curr = Checkpoint.checkpoints[j];
+			start = curr.riders[rider_counter].start_time;
+			finish = curr.riders[rider_counter].finish_time;
+			long durationInSeconds = ChronoUnit.SECONDS.between(start, finish);
+			duration = LocalTime.ofSecondOfDay(durationInSeconds);
+			times[j] = duration;
+		}
+		LocalTime totalelapsedtime = Arrays.stream(times).reduce(LocalTime.MIDNIGHT, (t1, t2) -> t1.plusHours(t2.getHour()).plusMinutes(t2.getMinute()).plusSeconds(t2.getSecond()));
+		return times;
 	}
 
 	@Override
