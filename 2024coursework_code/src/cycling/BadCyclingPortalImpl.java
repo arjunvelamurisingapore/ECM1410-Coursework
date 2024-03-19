@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -103,7 +102,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		Race race = Race.getRace(raceId);
 		if (race != null) {
 			Stage stage = new Stage(type, stageName, description, length, startTime);
-			Race.stages.add
+			race.stages.add(stage);
 		}
 		return 0;
 	}
@@ -122,58 +121,39 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			Stage temp = stage_list.get(j);
 			int temp_id = temp.getStageId();
 			stageIds[j] = temp_id;
+
 		}
 		return stageIds;
 	}
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		boolean found = false;
-		int i = 0;
 		double stageLength;
-		Stage curr = Stage.stages[0];
-		while (!found) {
-			curr = Stage.stages[i];
-			if (curr.stageId == stageId) {
-				found = true;
-			} else {
-				i += 1;
-			}
-			if (!found) {
-				throw new IDNotRecognisedException();
-			}
-		}
+		Stage curr = Stage.getStage(stageId);
 		stageLength = curr.getStage_length();
 		return stageLength;
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		boolean found = false;
-		int i = 0;
-		int remove_id = 0;
-		double stageLength;
-		Stage curr = Stage.stages[0];
-		while (!found) {
-			curr = Stage.stages[i];
-			if (curr.stageId == stageId) {
-				found = true;
-				remove_id = i;
-			} else {
-				i += 1;
+		Stage removestage = Stage.getStage(stageId);
+		int i;
+		if (removestage != null) {
+			for (int i = 0; i < Stage.stages.length; i++) {
+				if (Stage.stages[i] == removestage) {
+					Stage.stages[i] = null;
+					break;
+				}
 			}
-			if (!found) {
-				throw new IDNotRecognisedException();
-			}
-			Stage.stages[remove_id] = null;
+		} else {
+			throw new IDNotRecognisedException();
 		}
-
 	}
-
 	@Override
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
 		// TODO Auto-generated method stub
+
 		return 0;
 	}
 
@@ -239,40 +219,13 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		int count = ((Teams.teams).length);
-		Teams[] existing_teams = new Teams[count];
-		String regex = "^[a-zA-Z]+$";
-		Pattern pattern = Pattern.compile(regex);
-		if (name == null ||!(pattern.matcher(name).matches())){
-			throw new InvalidNameException();
-		}
-		for (int i=0; i< getTeams().length;i++){
-			if (((existing_teams[i]).getTeam_name()).equals(name)){
-				throw new IllegalNameException();
-			}
-		}
-		Teams newTeam = new Teams(name,description);
-		int newID = newTeam.team_id;
-		return newID;
+		return 0;
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		boolean found = false;
-		int i = 0;
-		Teams curr = Teams.teams[0];
-		while (!found) {
-			curr = Teams.teams[i];
-			if (curr.team_id == teamId) {
-				found = true;
-			} else {
-				i += 1;
-			}
-			if (!found) {
-				throw new IDNotRecognisedException();
-			}
-		}
-		Teams.teams[i] = null;
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
