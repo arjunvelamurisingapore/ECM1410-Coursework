@@ -430,6 +430,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 				throw new IDNotRecognisedException();
 			}
 		}
+		found = false;
 		i = 0;
 		while (!found) {
 			current_stage = Stage.stages[i];
@@ -454,6 +455,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			times[j] = duration;
 		}
 		LocalTime totalelapsedtime = Arrays.stream(times).reduce(LocalTime.MIDNIGHT, (t1, t2) -> t1.plusHours(t2.getHour()).plusMinutes(t2.getMinute()).plusSeconds(t2.getSecond()));
+		Results.elapsedTimes = times;
 		return times;
 	}
 
@@ -465,13 +467,47 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		boolean found = false;
+		Riders current_rider = Riders.riders[0];
+		Stage current_stage = Stage.stages[0];
+		int i = 0;
+		int rider_counter=0;
+		while (!found) {
+			current_rider = Riders.riders[i];
+			if (current_rider.id == riderId) {
+				found = true;
+				rider_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		found = false;
+		i = 0;
+		int stage_counter = 0;
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+				stage_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		Stage temp = Stage.stages[stage_counter];
+		Riders current = temp.riders[rider_counter];
+		current.results = null;
 	}
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
+		LocalTime[] elapsedTimes = Results.elapsedTimes;
+
 		return null;
 	}
 

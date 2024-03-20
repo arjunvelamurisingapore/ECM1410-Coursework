@@ -13,6 +13,7 @@ public class Riders {
 
     public LocalTime start_time;
     public LocalTime finish_time;
+    public Results[] results;
 
 
 
