@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.time.temporal.ChronoUnit;
 
+import static cycling.StageType.TT;
+
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -43,7 +45,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			throw new InvalidNameException("Race name cannot be null or empty");
 		}
 		if (!name.matches("[a-zA-Z ]+")) {
-			throw new IllegalNameException("Race name can only contain letters and spaces.");
+			throw new IllegalNameException("Race name can only contain letter");
 		}
 		 Race race = new Race(name,description);
 		id = race.getRace_id();
@@ -53,43 +55,29 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		boolean found = false;
-		String details = " ";
-		int[] race_array = getRaceIds();
-		int i = 0;
-		while (!found){
-			if (race_array[i] == raceId){
-				String name = Race.races[i].race_name;
-				String description = Race.races[i].description;
-				found = true;
-				details = name + ' ' + description;
-			} else {
-				i++;
-			}
-		}
-		if (!found){
-				throw new IDNotRecognisedException();
-			}
+		Race race = Race.getRace(raceId);
+		String name = race.race_name;
+		String description = race.description;
+		String details = name + ' ' + description;
+
 		return details;
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		Race race = Race.getRace(raceId);
+		Race[] race_list = Race.races;
 		boolean found = false;
-		int[] race_array = getRaceIds();
 		int i = 0;
-		while (!found) {
-			if (race_array[i] == raceId) {
-				race_array[i] = 0;
+		while(!found){
+			if (Race.races[i] == race){
+				found = true;
+				Race.races[i] = null;
 			} else {
-				i++;
+				i += 1;
 			}
 		}
-		if (!found){
-			throw new IDNotRecognisedException();
-		}
-
 	}
 
 	@Override
@@ -105,13 +93,42 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
-		Stage stage;
-		Race race = Race.getRace(raceId);
-		if (race != null) {
-			stage = new Stage(type, stageName, description, length, startTime);
-			race.stages.add(stage);
+
+		if (length < 5){
+			throw new InvalidLengthException();
 		}
-		return 0;
+
+		String regex = "^[a-zA-Z]+$";
+		Pattern pattern = Pattern.compile(regex);
+
+		if (!(pattern.matcher(stageName).matches()) || stageName.contains(" ") || stageName == null || stageName.isEmpty()){
+			throw new InvalidNameException();
+		}
+
+		boolean found = false;
+		int i = 0;
+		Race race = Race.getRace(raceId);
+		int stage_count = race.getStages().size();
+		while (!found){
+			Stage stage = race.stages.get(i);
+			if (stage.stageName == stageName){
+				found = true;
+
+			} else {
+				i+=1;
+			}
+		}
+		if ((i == stage_count) && found){
+			throw new IllegalNameException();
+		}
+
+
+		Stage stage;
+		stage = new Stage(type, stageName, description, length, startTime);
+		int stageId = stage.getStageId();
+		stage.active_status = true;
+		race.stages.add(stage);
+		return stageId;
 	}
 
 	@Override
@@ -158,15 +175,54 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
-		// TODO Auto-generated method stub
-		return 0;
+
+		int checkpoint_id = 0;
+		Stage stage = Stage.getStage(stageId);
+		double stage_length = getStageLength(stageId);
+
+		if (location < 0.0 || location > stage_length){
+			throw new InvalidLocationException();
+		}
+
+		if (stage.getStage_type() == TT){
+			throw new InvalidStageTypeException();
+		}
+
+		if (stage.getActiveStatus() == false){
+			throw new InvalidStageStateException();
+		}
+
+		Checkpoint c_climb = new Checkpoint(location, type, averageGradient, length);
+		stage.checkpoints.add(c_climb);
+		checkpoint_id = c_climb.getCheckpoint_id();
+		return checkpoint_id;
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
-		// TODO Auto-generated method stub
-		return 0;
+
+		int checkpoint_id = 0;
+		Stage stage = Stage.getStage(stageId);
+		double stage_length = getStageLength(stageId);
+
+		if (location < 0.0 || location > stage_length){
+			throw new InvalidLocationException();
+		}
+
+		if (stage.getStage_type() == TT){
+			throw new InvalidStageTypeException();
+		}
+
+		if (stage.getActiveStatus() == false){
+			throw new InvalidStageStateException();
+		}
+
+		Checkpoint i_sprint = new Checkpoint(location);
+		stage.checkpoints.add(i_sprint);
+		checkpoint_id = i_sprint.getCheckpoint_id();
+
+		return checkpoint_id;
 	}
 
 	@Override
@@ -192,8 +248,13 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+		Stage stage = Stage.getStage(stageId);
+		if (stage.active_status == false){
+			stage.finish_state = true;
+		} else {
+			stage.finish_state = false;
+			throw new InvalidStageStateException();
+		}
 	}
 
 	@Override

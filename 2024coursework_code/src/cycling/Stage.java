@@ -15,6 +15,10 @@ public class Stage {
 
     public double stage_length;
 
+    public boolean active_status = false;
+
+    public boolean finish_state = false;
+
     public Riders[] riders;
 
     public ArrayList<Checkpoint> checkpoints = new ArrayList<>();
@@ -27,7 +31,6 @@ public class Stage {
         this.stage_length  = stage_length;
         this.startTime  =  startTime;
         checkpoints = new ArrayList<Checkpoint>();
-
     }
 
     public Stage(StageType Stage_Type, String stageName, String description, double stage_length, LocalDateTime startTime){
@@ -59,26 +62,33 @@ public class Stage {
         return curr;
     }
 
+
     public int getStageId() {
         return stageId;
     }
-
     public void setStageId(int stageId) {
         this.stageId = stageId;
     }
-
     public double getStage_length() {
         return stage_length;
     }
-
     public void setStage_length(double stage_length) {
         this.stage_length = stage_length;
+    }
+
+    public StageType getStage_type(){
+        return stage_type;
+    }
+
+    public boolean getActiveStatus(){
+        return active_status;
     }
 
     public ArrayList<Checkpoint> getCheckpoints() {
         return checkpoints;
     }
 }
+
 
 
 
