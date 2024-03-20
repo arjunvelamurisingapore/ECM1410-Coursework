@@ -507,7 +507,6 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
 		LocalTime[] elapsedTimes = Results.elapsedTimes;
-
 		return null;
 	}
 
