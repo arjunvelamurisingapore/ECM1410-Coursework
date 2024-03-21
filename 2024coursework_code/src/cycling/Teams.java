@@ -30,4 +30,22 @@ public class Teams {
     public ArrayList<Riders> getTeam_riders() {
         return team_riders;
     }
+
+    public static Teams getTeam(int team_id) throws IDNotRecognisedException{
+        boolean found = false;
+        int i = 0;
+        Teams curr = Teams.teams[0];
+        while (!found) {
+            curr = Teams.teams[i];
+            if (curr.team_id == team_id) {
+                found = true;
+            } else {
+                i += 1;
+            }
+            if (!found) {
+                throw new IDNotRecognisedException();
+            }
+        }
+        return curr;
+    }
 }

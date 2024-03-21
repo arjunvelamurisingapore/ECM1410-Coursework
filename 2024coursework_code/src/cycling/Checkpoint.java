@@ -120,5 +120,22 @@ public class Checkpoint {
         return points;
     }
 
+    public static Checkpoint getCheckpoint(int checkpoint_id) throws IDNotRecognisedException{
+        boolean found = false;
+        int i = 0;
+        Checkpoint curr = Checkpoint.checkpoints[0];
+        while (!found) {
+            curr = Checkpoint.checkpoints[i];
+            if (curr.checkpoint_id == checkpoint_id) {
+                found = true;
+            } else {
+                i += 1;
+            }
+            if (!found) {
+                throw new IDNotRecognisedException();
+            }
+        }
+        return curr;
+    }
 
 }

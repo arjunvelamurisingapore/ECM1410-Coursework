@@ -26,4 +26,22 @@ public class Riders {
     public int getId() {
         return id;
     }
+
+    public static Riders getRider(int id) throws IDNotRecognisedException{
+        boolean found = false;
+        int i = 0;
+        Riders curr = Riders.riders[0];
+        while (!found) {
+            curr = Riders.riders[i];
+            if (curr.id == id) {
+                found = true;
+            } else {
+                i += 1;
+            }
+            if (!found) {
+                throw new IDNotRecognisedException();
+            }
+        }
+        return curr;
+    }
 }
