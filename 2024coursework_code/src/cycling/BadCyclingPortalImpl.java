@@ -507,7 +507,62 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
 		LocalTime[] elapsedTimes = Results.elapsedTimes;
-		return null;
+		boolean found = false;
+		int i = 0;
+		int stage_counter = 0;
+		Stage current_stage = Stage.stages[0];
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+				stage_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int counter = Stage.stages[stage_counter].riders.length;
+		int[] riderIDs = new int[counter];
+
+		for (int k=0; k<counter;k++){
+			Riders temp = Stage.stages[stage_counter].riders[k];
+			riderIDs[k] = temp.id;
+		}
+
+		LocalTime[] times = new LocalTime[counter];
+
+
+		for (int j=0; j<counter; j++){
+			int id = riderIDs[j];
+			times[j] = Results.sumLocalTimes(getRiderResultsInStage(stageId,id));
+		}
+
+		int[] totalSecondsArray = Results.convertToTotalSecondsArray(times);
+		int size = totalSecondsArray.length;
+		for (int a = 0; a<size-1; a++){
+			for (int b = 0; b<size-a-1; b++){
+				if(totalSecondsArray[b+1]>totalSecondsArray[b]){
+					int temp1 = totalSecondsArray[b];
+					totalSecondsArray[b] = totalSecondsArray[b+1];
+					totalSecondsArray[b+1] = temp1;
+					int temp2 = riderIDs[b];
+					riderIDs[b] = totalSecondsArray[b+1];
+					riderIDs[b+1] = temp1;
+				}
+			}
+
+		}
+
+		int[] riders= new int[15];
+		int max = 0;
+		while (max<15){
+			riders[max] = riderIDs[max];
+			max++;
+		}
+
+		return riders;
 	}
 
 	@Override
@@ -518,14 +573,99 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int stage_counter = 0;
+		Stage current_stage = Stage.stages[0];
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+				stage_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int counter = Stage.stages[stage_counter].riders.length;
+		int[] rankedRiders = new int[counter];
+		rankedRiders = getRidersRankInStage(stageId);
+		int[] riders= new int[15];
+		int max = 0;
+		while (max<15){
+			riders[max] = rankedRiders[max];
+			max++;
+		}
+		int[] riderPoints = new int[15];
+		riderPoints = Stage.stagePoints(stage_counter);
+
+		int checkPoints = Stage.stages[stage_counter].checkpoints.size();
+		int sprintCount = 0;
+		for (int j=0; j<checkPoints;i++){
+			if (Stage.stages[stage_counter].checkpoints.get(j).checkpoint_type == CheckpointType.SPRINT){
+				sprintCount = sprintCount+1;
+			}
+		}
+		int[] sprintPoints = new int[15];
+		sprintPoints = Checkpoint.checkpointSprintPoints();
+		for (int a = 0; a<sprintCount; a++){
+			for (int b = 0; b<15; b++){
+				riderPoints[b] = riderPoints[b]+sprintPoints[b];
+			}
+
+		}
+		return riderPoints;
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int stage_counter = 0;
+		Stage current_stage = Stage.stages[0];
+		int[] points = new int[15];
+		int m = 0;
+		while (m<15){
+			points[m] = 0;
+			m++;
+		}
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+				stage_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int[] ridersMountainPoints = new int[15];
+		int checkPoints = Stage.stages[stage_counter].checkpoints.size();
+		for (int j = 0; j < checkPoints; i++) {
+				CheckpointType type = Stage.stages[stage_counter].checkpoints.get(j).checkpoint_type;
+				switch (type) {
+					case C4:
+						ridersMountainPoints = Checkpoint.C4Points();
+					case C3:
+						ridersMountainPoints = Checkpoint.C3Points();
+					case C2:
+						ridersMountainPoints = Checkpoint.C2Points();
+					case C1:
+						ridersMountainPoints = Checkpoint.C1Points();
+					case HC:
+						ridersMountainPoints = Checkpoint.HCPoints();
+					case SPRINT:
+						ridersMountainPoints = null;
+				for (int a = 0; a < ridersMountainPoints.length; a++ ) {
+					points[a] = points[a]+ridersMountainPoints[a];
+				}
+			}
+	}
+		return points;
 	}
 
 	@Override
