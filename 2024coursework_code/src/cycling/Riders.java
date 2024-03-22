@@ -15,6 +15,8 @@ public class Riders {
     public LocalTime finish_time;
     public Results[] results;
 
+    public LocalTime totalElapsedTime;
+
 
 
     public Riders(int team_id,String name,int birth){

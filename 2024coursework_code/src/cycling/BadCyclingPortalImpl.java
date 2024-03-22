@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.time.temporal.ChronoUnit;
@@ -361,7 +362,6 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		}
 	}
 
-/////////////////////////////////////////////////////// dont touch
 	@Override
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
@@ -394,10 +394,12 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		}
 		found = false;
 		i = 0;
+		int stage_counter = 0;
 		while (!found) {
 			current_stage = Stage.stages[i];
 			if (current_stage.stageId == stageId) {
 				found = true;
+				stage_counter = i;
 			} else {
 				i += 1;
 			}
@@ -417,14 +419,83 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 			times[j] = duration;
 		}
 		LocalTime totalelapsedtime = Arrays.stream(times).reduce(LocalTime.MIDNIGHT, (t1, t2) -> t1.plusHours(t2.getHour()).plusMinutes(t2.getMinute()).plusSeconds(t2.getSecond()));
+		Stage.stages[stage_counter].riders[rider_counter].totalElapsedTime = totalelapsedtime;
 		Results.elapsedTimes = times;
 		return times;
 	}
 
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		Riders current_rider = Riders.riders[0];
+		Stage current_stage = Stage.stages[0];
+		int i = 0;
+		int rider_counter =0;
+		while (!found) {
+			current_rider = Riders.riders[i];
+			if (current_rider.id == riderId) {
+				found = true;
+				rider_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		found = false;
+		i = 0;
+		int stage_counter = 0;
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+				stage_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		LocalTime result = LocalTime.ofSecondOfDay(0);
+
+
+		Riders current = Stage.stages[stage_counter].riders[rider_counter];
+		LocalTime current_start_time = current.start_time;
+		LocalTime current_finish_time = current.finish_time;
+		long durationInSeconds_current = ChronoUnit.SECONDS.between(current_start_time, current_finish_time);
+		LocalTime current_duration = LocalTime.ofSecondOfDay(durationInSeconds_current);
+
+
+		Riders previous = Stage.stages[stage_counter].riders[rider_counter-1];
+		Riders next = Stage.stages[stage_counter].riders[rider_counter+1];
+		LocalTime previous_start_time = previous.start_time;
+		LocalTime previous_finish_time = previous.finish_time;
+		LocalTime next_start_time = next.start_time;
+		LocalTime next_finish_time = next.finish_time;
+		long durationInSeconds_previous = ChronoUnit.SECONDS.between(previous_start_time, previous_finish_time);
+		LocalTime previous_duration = LocalTime.ofSecondOfDay(durationInSeconds_previous);
+		long durationInSeconds_next = ChronoUnit.SECONDS.between(next_start_time, next_finish_time);
+		LocalTime next_duration = LocalTime.ofSecondOfDay(durationInSeconds_next);
+
+		if (Stage.stages[stage_counter].stage_type == TT){
+			result = current_duration;
+		}
+
+		if (previous_duration.plusSeconds(1).getSecond() > current_duration.getSecond()){
+			result = previous_duration;
+		}
+
+		if (next_duration.plusSeconds(1).getSecond() > current_duration.getSecond()){
+			result = next_duration;
+		}
+
+		if (previous_duration.plusSeconds(1).getSecond() < current_duration.getSecond() ||next_duration.plusSeconds(1).getSecond() < current_duration.getSecond() ){
+			result = current_duration;
+		}
+
+		return result;
 	}
 
 	@Override
@@ -510,7 +581,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 					totalSecondsArray[b] = totalSecondsArray[b+1];
 					totalSecondsArray[b+1] = temp1;
 					int temp2 = riderIDs[b];
-					riderIDs[b] = totalSecondsArray[b+1];
+					riderIDs[b] = riderIDs[b+1];
 					riderIDs[b+1] = temp1;
 				}
 			}
@@ -529,8 +600,38 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int stage_counter = 0;
+		Stage current_stage = Stage.stages[0];
+		while (!found) {
+			current_stage = Stage.stages[i];
+			if (current_stage.stageId == stageId) {
+				found = true;
+				stage_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int counter = Stage.stages[stage_counter].riders.length;
+		LocalTime[] rankedTimes = new LocalTime[15];
+		LocalTime[] adjustedRankedTimes = new LocalTime[15];
+
+		for (int j = 0; j<15;j++){
+			int riderID = Stage.stages[stage_counter].riders[j].id;
+			rankedTimes = getRiderResultsInStage(stageId,riderID);
+			for (int k = 0; k< 15; k++){
+				rankedTimes[k] = getRiderAdjustedElapsedTimeInStage(stageId,riderID);
+			}
+			LocalTime totaladjustedelapsedtime = Arrays.stream(rankedTimes).reduce(LocalTime.MIDNIGHT, (t1, t2) -> t1.plusHours(t2.getHour()).plusMinutes(t2.getMinute()).plusSeconds(t2.getSecond()));
+			adjustedRankedTimes[j] = totaladjustedelapsedtime;
+		}
+
+
+		return adjustedRankedTimes;
 	}
 
 	@Override
@@ -669,44 +770,285 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
-		// TODO Auto-generated method stub
+		Race raceToRemove = Race.getRacebyName(name);
+		int current_size = raceToRemove.stages.size();
+		int current_riders = raceToRemove.riders.length;
+		for (int j = 0; j< current_riders; j++){
+			raceToRemove.riders[j].results = null;
 
+		}
+		for (int i = 0; i< current_size; i++){
+			raceToRemove.stages.get(i).riders = null;
+			raceToRemove.stages.get(i).checkpoints.clear();
+		}
+		raceToRemove.stages.clear();
 	}
 
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int race_counter = 0;
+		Race current_race = Race.races[0];
+		while (!found) {
+			current_race = Race.races[i];
+			if (current_race.race_id == raceId) {
+				found = true;
+				race_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+
+		int StageCount = Race.races[race_counter].stages.size();
+		LocalTime[] adjustedTimes = new LocalTime[StageCount];
+		LocalTime[] totaladjustedTimes = new LocalTime[15];
+
+		for (int j = 0; j<StageCount; j++){
+			int StageID = Race.races[race_counter].stages.get(j).stageId;
+			adjustedTimes = getRankedAdjustedElapsedTimesInStage(StageID);
+			int riderCount = Race.races[race_counter].stages.get(j).riders.length;
+			for (int k = 0; k<riderCount; k++){
+				LocalTime time1 = adjustedTimes[k];
+				LocalTime time2 = totaladjustedTimes[k];
+				LocalTime sum = time1.plusHours(time2.getHour())
+						.plusMinutes(time2.getMinute())
+						.plusSeconds(time2.getSecond())
+						.plusNanos(time2.getNano());
+				totaladjustedTimes[k] = sum;
+			}
+		}
+		Arrays.sort(totaladjustedTimes, Comparator.naturalOrder());
+
+
+
+		return totaladjustedTimes;
 	}
 
 	@Override
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int race_counter = 0;
+		Race current_race = Race.races[0];
+		while (!found) {
+			current_race = Race.races[i];
+			if (current_race.race_id == raceId) {
+				found = true;
+				race_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int StageCount = Race.races[race_counter].stages.size();
+
+		int[] stagePoints = new int[StageCount];
+		int[] totalPoints = new int[15];
+
+		for (int j = 0; j<StageCount; j++){
+			int StageID = Race.races[race_counter].stages.get(j).stageId;
+			stagePoints = getRidersPointsInStage(StageID);
+			int riderCount = Race.races[race_counter].stages.get(j).riders.length;
+			for (int k = 0; k<riderCount; k++){
+				int points = stagePoints[k];
+				totalPoints[k] = totalPoints[k] + points;
+			}
+		}
+
+		return totalPoints;
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int race_counter = 0;
+		Race current_race = Race.races[0];
+		while (!found) {
+			current_race = Race.races[i];
+			if (current_race.race_id == raceId) {
+				found = true;
+				race_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int StageCount = Race.races[race_counter].stages.size();
+
+		int[] stagePoints = new int[StageCount];
+		int[] totalPoints = new int[15];
+
+		for (int j = 0; j<StageCount; j++){
+			int StageID = Race.races[race_counter].stages.get(j).stageId;
+			stagePoints = getRidersMountainPointsInStage(StageID);
+			int riderCount = Race.races[race_counter].stages.get(j).riders.length;
+			for (int k = 0; k<riderCount; k++){
+				int points = stagePoints[k];
+				totalPoints[k] = totalPoints[k] + points;
+			}
+		}
+		return totalPoints;
 	}
 
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int race_counter = 0;
+		Race current_race = Race.races[0];
+		while (!found) {
+			current_race = Race.races[i];
+			if (current_race.race_id == raceId) {
+				found = true;
+				race_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int StageCount = Race.races[race_counter].stages.size();
+
+		int[] stagePoints = new int[StageCount];
+		int[] totalPoints = new int[15];////////
+		int[] riderRanks = new int[15];
+
+		for (int j = 0; j<StageCount; j++){
+			int StageID = Race.races[race_counter].stages.get(j).stageId;
+			stagePoints = getRidersPointsInStage(StageID);
+			int riderCount = Race.races[race_counter].stages.get(j).riders.length;
+			for (int k = 0; k<riderCount; k++){
+				int points = stagePoints[k];
+				totalPoints[k] = totalPoints[k] + points;
+				riderRanks[k] = Race.races[race_counter].stages.get(j).riders[k].id;
+			}
+		}
+
+		for (int a = 0; a<14; a++){
+			for (int b = 0; b<14-a-1; b++){
+				if(totalPoints[b+1]>totalPoints[b]){
+					int temp1 = totalPoints[b];
+					totalPoints[b] = totalPoints[b+1];
+					totalPoints[b+1] = temp1;
+					int temp2 = riderRanks[b];
+					riderRanks[b] = riderRanks[b+1];
+					riderRanks[b+1] = temp1;
+				}
+			}
+
+		}
+
+
+		return riderRanks;
 	}
 
 	@Override
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int race_counter = 0;
+		Race current_race = Race.races[0];
+		while (!found) {
+			current_race = Race.races[i];
+			if (current_race.race_id == raceId) {
+				found = true;
+				race_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int StageCount = Race.races[race_counter].stages.size();
+
+		int[] stagePoints = new int[StageCount];
+		int[] totalPoints = new int[15];
+
+		for (int j = 0; j<StageCount; j++){
+			int StageID = Race.races[race_counter].stages.get(j).stageId;
+			stagePoints = getRidersPointsInStage(StageID);
+			int riderCount = Race.races[race_counter].stages.get(j).riders.length;
+			for (int k = 0; k<riderCount; k++){
+				int points = stagePoints[k];
+				totalPoints[k] = totalPoints[k] + points;
+			}
+		}
+
+		for (int a = 0; a<14; a++){
+			for (int b = 0; b<14-a-1; b++){
+				if(totalPoints[b+1]>totalPoints[b]){
+					int temp1 = totalPoints[b];
+					totalPoints[b] = totalPoints[b+1];
+					totalPoints[b+1] = temp1;
+				}
+			}
+
+		}
+
+		return totalPoints;
 	}
 
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		boolean found = false;
+		int i = 0;
+		int race_counter = 0;
+		Race current_race = Race.races[0];
+		while (!found) {
+			current_race = Race.races[i];
+			if (current_race.race_id == raceId) {
+				found = true;
+				race_counter = i;
+			} else {
+				i += 1;
+			}
+			if (!found) {
+				throw new IDNotRecognisedException();
+			}
+		}
+		int StageCount = Race.races[race_counter].stages.size();
+
+		int[] stagePoints = new int[StageCount];
+		int[] totalPoints = new int[15];////////
+		int[] riderRanks = new int[15];
+
+		for (int j = 0; j<StageCount; j++){
+			int StageID = Race.races[race_counter].stages.get(j).stageId;
+			stagePoints = getRidersMountainPointsInStage(StageID);
+			int riderCount = Race.races[race_counter].stages.get(j).riders.length;
+			for (int k = 0; k<riderCount; k++){
+				int points = stagePoints[k];
+				totalPoints[k] = totalPoints[k] + points;
+				riderRanks[k] = Race.races[race_counter].stages.get(j).riders[k].id;
+			}
+		}
+
+		for (int a = 0; a<14; a++){
+			for (int b = 0; b<14-a-1; b++){
+				if(totalPoints[b+1]>totalPoints[b]){
+					int temp1 = totalPoints[b];
+					totalPoints[b] = totalPoints[b+1];
+					totalPoints[b+1] = temp1;
+					int temp2 = riderRanks[b];
+					riderRanks[b] = riderRanks[b+1];
+					riderRanks[b+1] = temp1;
+				}
+			}
+
+		}
+
+		return riderRanks;
 	}
 
 }

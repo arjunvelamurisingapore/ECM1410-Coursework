@@ -53,4 +53,21 @@ public class Race {
         }
         return curr;
     }
+
+    public static Race getRacebyName(String name) {
+        boolean found = false;
+        int i = 0;
+        Race curr = races[i];
+        while (!found) {
+            curr = races[i];
+            if (curr.race_name == name) {
+                found = true;
+            } else {
+                i += 1;
+            }
+        }
+        return curr;
+    }
+
+
 }
