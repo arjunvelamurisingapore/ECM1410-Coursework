@@ -280,7 +280,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		int count = ((Teams.teams).length);;
+		int count = (Teams.teams.length);
 		Teams[] existing_teams = new Teams[count];
 		String regex = "^[a-zA-Z]+$"; // make a regular expression
 		Pattern pattern = Pattern.compile(regex);

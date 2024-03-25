@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="ECM1410-Coursework:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ECM1410_Coursework_jar</output-path>
+    <root id="archive" name="ECM1410-Coursework.jar">
+      <element id="module-output" name="ECM1410-Coursework" />
+    </root>
+  </artifact>
+</component>
