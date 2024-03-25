@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.time.temporal.ChronoUnit;
 import java.io.*;
@@ -22,7 +21,7 @@ import static cycling.StageType.TT;
  * @version 2.0
  *
  */
-public class BadCyclingPortalImpl implements CyclingPortal {
+public class CyclingPortalImpl implements CyclingPortal {
 
 
 	@Override
@@ -281,7 +280,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		int count = ((Teams.teams).length);
+		int count = ((Teams.teams).length);;
 		Teams[] existing_teams = new Teams[count];
 		String regex = "^[a-zA-Z]+$"; // make a regular expression
 		Pattern pattern = Pattern.compile(regex);
@@ -733,8 +732,8 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void eraseCyclingPortal() {
-		// TODO Auto-generated method stub
-
+		CyclingPortal cp = new CyclingPortalImpl();
+		cp.equals(null);
 	}
 
 	@Override
@@ -920,7 +919,7 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		int StageCount = Race.races[race_counter].stages.size();
 
 		int[] stagePoints = new int[StageCount];
-		int[] totalPoints = new int[15];////////
+		int[] totalPoints = new int[15];
 		int[] riderRanks = new int[15];
 
 		for (int j = 0; j<StageCount; j++){

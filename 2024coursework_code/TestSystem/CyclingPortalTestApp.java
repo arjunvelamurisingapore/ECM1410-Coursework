@@ -1,6 +1,4 @@
-import cycling.IllegalNameException;
-import cycling.InvalidNameException;
-import cycling.MiniCyclingPortal;
+import cycling.*;
 
 /**
  * A short program to illustrate an app testing some minimal functionality of a
@@ -23,8 +21,8 @@ public class CyclingPortalTestApp {
 		System.out.println("The system compiled and started the execution...");
 
 		// TODO replace BadMiniCyclingPortalImpl by CyclingPortalImpl
-		CyclingPortal portal1 = new BadCyclingPortalImpl();
-		CyclingPortal portal2 = new BadCyclingPortalImpl();
+		CyclingPortal portal1 = new CyclingPortalImpl();
+		CyclingPortal portal2 = new CyclingPortalImpl();
 
 		assert (portal1.getRaceIds().length == 0)
 				: "Innitial Portal not empty as required or not returning an empty array.";
