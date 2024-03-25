@@ -23,6 +23,8 @@ public class Stage {
 
     public ArrayList<Checkpoint> checkpoints = new ArrayList<>();
 
+    public static ArrayList<Teams> teams = new ArrayList<>();
+
     public Stage(int Stage_ID, StageType Stage_Type, String stageName,  String description, double stage_length, LocalDateTime startTime){
         this.stageId = Stage_ID;
         this.stage_type = Stage_Type;

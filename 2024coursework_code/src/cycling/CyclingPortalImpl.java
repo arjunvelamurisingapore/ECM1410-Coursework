@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.time.temporal.ChronoUnit;
 import java.io.*;
@@ -280,30 +281,34 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		int count = (Teams.teams.length);
-		Teams[] existing_teams = new Teams[count];
-		String regex = "^[a-zA-Z]+$"; // make a regular expression
+
+		//for (int i = 0; i < Stage.teams.size(); i++){
+			//Teams team = Stage.teams.get(i);
+			//if (Objects.equals(team.getName(), name)){
+				//throw new IllegalNameException();
+			//}
+		//}
+
+		String regex = "^[a-zA-Z]+$";
 		Pattern pattern = Pattern.compile(regex);
-		if (name == null ||!(pattern.matcher(name).matches())){ // see if the string matches the regular expression after it has been compiled
+
+		if (!(pattern.matcher(name).matches()) || name.contains(" ") || name == null || name.isEmpty()){
 			throw new InvalidNameException();
 		}
-		for (int i=0; i< getTeams().length;i++){
-			if (((existing_teams[i]).getTeam_name()).equals(name)){ // check if the name of the team already coincides with a name from another existing team
-				throw new IllegalNameException();
-			}
-		}
-		Teams newTeam = new Teams(name,description); // create new team after all is true
-		int newID = newTeam.team_id;
-		return newID;
-	}
+
+		Teams newTeam = new Teams(name,description);
+		int newteam_id = newTeam.getTeamId();
+		Stage.teams.add(newTeam);
+        return newteam_id;
+    }
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
 		Teams team = Teams.getTeam(teamId);
 		if (team != null) {
-			for (int i = 0; i < Teams.teams.length; i++) { // for loop to iterate through list of teams
-				if (Teams.teams[i] == team) {
-					Teams.teams[i] = null; // replaces the specified team with null
+			for (int i = 0; i < Stage.teams.size(); i++) { // for loop to iterate through list of teams
+				if (Stage.teams.get(i) == team) {
+					Stage.teams.set(i, null); // replaces the specified team with null
 					break;
 				}
 			}
@@ -314,7 +319,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getTeams() {
-		int counter = Teams.teams.length;
+		int counter = Stage.teams.size();
 		int[] team_ids = new int[counter];
 		for (int i =0; i<counter;i++){
 			Teams curr = Teams.teams[i];

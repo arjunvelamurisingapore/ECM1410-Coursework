@@ -34,9 +34,9 @@ public class Teams {
     public static Teams getTeam(int team_id) throws IDNotRecognisedException{
         boolean found = false;
         int i = 0;
-        Teams curr = Teams.teams[0];
+        Teams curr = Stage.teams.get(0);
         while (!found) {
-            curr = Teams.teams[i];
+            curr = Stage.teams.get(i);
             if (curr.team_id == team_id) {
                 found = true;
             } else {
@@ -47,5 +47,13 @@ public class Teams {
             }
         }
         return curr;
+    }
+
+    public int getTeamId(){
+        return team_id;
+    }
+
+    public String getName(){
+        return team_name;
     }
 }
